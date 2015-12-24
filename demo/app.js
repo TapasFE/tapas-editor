@@ -7,7 +7,7 @@ const config = {
   resize: false,
   menubar: '',
   toolbar: 'undo redo | bold removeformat link image searchreplace',
-  plugins: 'searchreplace autoresize hg_image',
+  plugins: 'searchreplace autoresize',
   content_style:
     '*{line-height:25px;color:#555;font-size:15px;font-family:\'Hiragino Sans GB\',\'Microsoft YaHei\',\'黑体\',Helvetica,Arial,Tahoma,sans-serif;}' +
     'img{max-width:100%;}' +
