@@ -1,6 +1,8 @@
 Tapas-Editor
 ===
 
+![NPM](https://img.shields.io/npm/v/tapas-editor.svg)
+
 A React editor component based on [TinyMCE](https://www.tinymce.com).
 
 Usage
