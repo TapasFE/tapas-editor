@@ -23,10 +23,13 @@ class App extends Component {
   }
 
   render() {
+    const events = {
+      change: this.handleChange,
+    };
     return (
       <TapasEditor
       config={config}
-      onChange={this.handleChange}
+      events={events}
       />
     );
   }

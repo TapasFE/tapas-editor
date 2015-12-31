@@ -2,9 +2,12 @@
   "name": "tapas-editor",
   "version": "1.0.0",
   "description": "Tapas Editor",
-  "main": "./lib/tapas-editor.js",
+  "main": "./index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "build-demo": "webpack --config demo/webpack.config.js",
+    "clean": "node -e \"require('del')(['build','lib'])\""
   },
   "repository": {
     "type": "git",
@@ -33,7 +36,6 @@
     "imports-loader": "^0.6.5",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
-    "react-tinymce": "^0.4.0",
     "style-loader": "^0.13.0",
     "tinymce": "^4.3.2",
     "url-loader": "^0.5.7",
