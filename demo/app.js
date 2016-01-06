@@ -6,8 +6,8 @@ const config = {
   statusbar: false,
   resize: false,
   menubar: '',
-  toolbar: 'undo redo | bold removeformat link image searchreplace t_d2s t_simp2trad t_trad2simp',
-  plugins: 'searchreplace autoresize t_d2s t_simp_trad',
+  toolbar: 'undo redo | bold removeformat link image searchreplace t_image t_d2s t_simp2trad t_trad2simp',
+  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image',
   content_style:
     '*{line-height:25px;color:#555;font-size:15px;font-family:\'Hiragino Sans GB\',\'Microsoft YaHei\',\'黑体\',Helvetica,Arial,Tahoma,sans-serif;}' +
     'img{max-width:100%;}' +
@@ -15,6 +15,8 @@ const config = {
     'table{width:100%}',
   extended_valid_elements: 'a[href|href-id|target=_blank|title]',
   convert_urls: false,
+  paste_as_text: true,
+  paste_data_images: true,
 };
 
 class App extends Component {
@@ -23,9 +25,22 @@ class App extends Component {
     console.log(content);
   }
 
+  handleUpload(e, editor) {
+    const file = e.data;
+    const cb = e.callback;
+
+    // Upload the image and callback with the URL.
+    // We will just create an object URL in this demo.
+    const url = URL.createObjectURL(file);
+    setTimeout(() => URL.revokeObjectURL(url));
+
+    cb(url);
+  }
+
   render() {
     const events = {
       change: this.handleChange,
+      TUploadImage: this.handleUpload,
     };
     return (
       <TapasEditor

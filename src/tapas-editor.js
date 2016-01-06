@@ -57,6 +57,7 @@ requirePlugins([
 [
   'd2s',
   'simp-trad',
+  'image',
 ].forEach(plugin => require(`./plugins/${plugin}`));
 
 const defaultConfig = {

@@ -7,7 +7,7 @@ import tinymce from '../tinymce';
 export function stringTransformer(transformChar) {
   return function (str) {
     var result = '', len = str.length;
-    for (var i = 0; i < len; i ++) {
+    for (let i = 0; i < len; i ++) {
       result += transformChar(str[i]);
     }
     return result;
@@ -20,15 +20,15 @@ export function stringTransformer(transformChar) {
  * @param {Function(string):string} transform
  */
 export function traversalTransform(editor, transform) {
-  var parser = editor.parser;
-  var root = parser.parse(editor.getContent());
-  var node = root;
+  const parser = editor.parser;
+  const root = parser.parse(editor.getContent());
+  let node = root;
   while ((node = node.walk())) {
     if (node.type === 3) {
       node.value = transform(node.value);
     }
   }
-  var serializer = new tinymce.html.Serializer;
+  const serializer = new tinymce.html.Serializer;
   editor.setContent(serializer.serialize(root));
   editor.fire('change');
 };
@@ -39,12 +39,12 @@ export function traversalTransform(editor, transform) {
  */
 export function tagFilter(editor, pattern) {
   return function ($el) {
-    var html = $el.html();
-    var matches = pattern.exec(html);
-    var text;
-    var range = editor.selection.getRng();
+    const html = $el.html();
+    const matches = pattern.exec(html);
+    let text;
+    const range = editor.selection.getRng();
     if (matches) {
-      var el = $el[0];
+      const el = $el[0];
       if (matches[1]) {
         text = editor.dom.createFragment(matches[1]);
         el.parentNode.insertBefore(text, el);
@@ -61,15 +61,15 @@ export function tagFilter(editor, pattern) {
         }
       }
     } else {
-      var next = $el[0].nextSibling;
-      var parent = $el[0].parentNode;
+      const next = $el[0].nextSibling;
+      const parent = $el[0].parentNode;
       $el.replaceWith(html);
       if (range) {
         if (next) {
           range.setStartBefore(next);
           range.setEndBefore(next);
         } else {
-          var last = parent.lastChild;
+          const last = parent.lastChild;
           range.setStartAfter(last);
           range.setEndAfter(last);
         }
@@ -88,11 +88,56 @@ export function tagFilter(editor, pattern) {
  * @param {Object} offset (Optional)
  */
 export function move(editor, floatEl, targetEl, policy, offset) {
-  var rect = editor.dom.getRect(targetEl);
-  var pos = tinymce.DOM.getPos(editor.getContentAreaContainer());
+  const rect = editor.dom.getRect(targetEl);
+  const pos = tinymce.DOM.getPos(editor.getContentAreaContainer());
   rect.x += pos.x;
   rect.y += pos.y;
-  var relRect = tinymce.geom.Rect.relativePosition({w: 0, h: 0}, rect, policy);
+  const relRect = tinymce.geom.Rect.relativePosition({w: 0, h: 0}, rect, policy);
   offset = offset || {};
   floatEl.moveTo(relRect.x + (offset.x || 0), relRect.y + (offset.y || 0));
+};
+
+/**
+ * @desc Select files and callback.
+ * @param {Object} options
+ *     - options.accept {String}
+ *     - options.multiple {Boolean}
+ * @param {Function(File|Array[File])} callback
+ */
+export function selectFiles(options, cb) {
+  options = options || {};
+  const file = document.createElement('input');
+  file.setAttribute('type', 'file');
+  if (options.accept)
+    file.setAttribute('accept', options.accept);
+  if (options.multiple)
+    file.multiple = true;
+  file.onchange = function () {
+    if (this.files && this.files.length) {
+      cb(options.multiple ? this.files : this.files[0]);
+    }
+  };
+
+  // IE fix: `input[file]` MUST be attached to DOM
+  file.setAttribute('style', 'display:none');
+  document.body.appendChild(file);
+
+  file.click();
+  document.body.removeChild(file);
+};
+
+/**
+ * @desc Transform a DataURL to Blob or File.
+ * @param {String} url
+ * @return {Blob}
+ */
+export function dataURL2Blob(url) {
+  const parts = url.split(',');
+  const byteString = atob(parts[1]);
+  const mimeType = parts[0].split(':')[1].split(';')[0];
+  const buf = [];
+  for (let i = byteString.length; i --;) {
+    buf[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([new Uint8Array(buf)], {type: mimeType});
 };
