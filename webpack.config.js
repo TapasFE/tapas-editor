@@ -41,6 +41,9 @@ module.exports = {
       }, {
         test: /\.(gif|eot|ttf|woff|svg)$/,
         loader: 'url',
+      }, {
+        test: /\.txt$/,
+        loader: 'raw',
       }
     ],
   },

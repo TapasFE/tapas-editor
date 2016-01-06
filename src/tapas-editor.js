@@ -54,6 +54,10 @@ requirePlugins([
   'visualchars',
   'wordcount',
 ]);
+[
+  'd2s',
+  'simp-trad',
+].forEach(plugin => require(`./plugins/${plugin}`));
 
 const defaultConfig = {
   // Import default content CSS for the corresponding skin
