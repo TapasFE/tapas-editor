@@ -20,3 +20,12 @@ class App extends Component {
 
 ReactDOM.render(<App />, document.body);
 ```
+
+Write your own plugins for `tinymce`:
+``` javascript
+import {tinymce} from 'tapas-editor';
+
+tinymce.PluginManager.add('my_plugin', editor => {
+  // Do stuff here
+});
+```
