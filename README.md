@@ -8,17 +8,11 @@ A React editor component based on [TinyMCE](https://www.tinymce.com).
 Usage
 ---
 ``` javascript
-import React, {Component} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import TapasEditor from 'tapas-editor';
+import Editor from 'tapas-editor';
 
-class App extends Component {
-  render() {
-    return <TapasEditor />;
-  }
-}
-
-ReactDOM.render(<App />, document.body);
+ReactDOM.render(<Editor />, document.body);
 ```
 
 Write your own plugins for `tinymce`:
@@ -28,4 +22,13 @@ import {tinymce} from 'tapas-editor';
 tinymce.PluginManager.add('my_plugin', editor => {
   // Do stuff here
 });
+```
+
+Development
+---
+``` sh
+# Build
+$ npm run build
+# Run demo
+$ npm start
 ```

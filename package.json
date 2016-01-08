@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "build-demo": "webpack --config demo/webpack.config.js",
-    "clean": "node -e \"require('del')(['build','lib'])\""
+    "start": "tapas-build",
+    "clean": "node -e \"require('del')(['lib'])\""
   },
   "repository": {
     "type": "git",
@@ -38,8 +38,13 @@
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "style-loader": "^0.13.0",
+    "tapas-build": "^0.2.13",
     "tinymce": "^4.3.2",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.9"
+  },
+  "tapas": {
+    "entry": "./demo/app.js",
+    "output": "./build"
   }
 }
