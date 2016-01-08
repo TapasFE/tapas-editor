@@ -20,9 +20,21 @@ const config = {
 };
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      content: this.content = 'content',
+    };
+    setTimeout(() => {
+      this.setState({
+        content: this.content = 'content changed',
+      });
+    }, 1000);
+  }
+
   handleChange(e, editor) {
-    const content = editor.getContent();
-    console.log(content);
+    this.content = editor.getContent();
+    console.log(this.content);
   }
 
   handleUpload(e, editor) {
@@ -39,13 +51,14 @@ class App extends Component {
 
   render() {
     const events = {
-      change: this.handleChange,
+      change: ::this.handleChange,
       TUploadImage: this.handleUpload,
     };
     return (
       <TapasEditor
         config={config}
         events={events}
+        content={this.state.content}
       />
     );
   }

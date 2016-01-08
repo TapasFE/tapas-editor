@@ -91,13 +91,14 @@ class TapasEditor extends Component {
   }
 
   componentDidMount() {
-    const config = Object.assign({}, defaultConfig, this.props.config);
-    this._init(config);
+    this._init(this.props.config, this.props.content);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.config !== nextProps.config) {
       this._init(nextProps.config, nextProps.content);
+    } else if (this.props.content != nextProps.content) {
+      this._editor && this._editor.setContent(nextProps.content);
     }
     if (this.props.id !== nextProps.id) {
       this.id = nextProps.id;
@@ -128,6 +129,7 @@ class TapasEditor extends Component {
   }
 
   _init(config, content) {
+    config = Object.assign({}, defaultConfig, config);
     this._isInit && this._remove();
 
     findDOMNode(this).style.hidden = 'hidden';
@@ -144,7 +146,8 @@ class TapasEditor extends Component {
         }
       }
       editor.on('init', () => {
-        this.props.content && editor.setContent(this.props.content);
+        this._editor = editor;
+        content && editor.setContent(content);
       });
     };
 
@@ -158,7 +161,10 @@ class TapasEditor extends Component {
   _remove() {
     tinymce.EditorManager.execCommand('mceRemoveEditor', true, this.id);
     this._isInit = false;
+    this._editor = null;
   }
 }
 
 export default TapasEditor;
+
+export {tinymce};
