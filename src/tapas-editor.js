@@ -58,6 +58,7 @@ requirePlugins([
   'd2s',
   'simp-trad',
   'image',
+  'autofloat',
 ].forEach(plugin => require(`./plugins/${plugin}`));
 
 const defaultConfig = {

@@ -7,7 +7,7 @@ const config = {
   resize: false,
   menubar: '',
   toolbar: 'undo redo | bold removeformat link image searchreplace t_image t_d2s t_simp2trad t_trad2simp',
-  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image',
+  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image t_autofloat',
   content_style:
     '*{line-height:25px;color:#555;font-size:15px;font-family:\'Hiragino Sans GB\',\'Microsoft YaHei\',\'黑体\',Helvetica,Arial,Tahoma,sans-serif;}' +
     'img{max-width:100%;}' +
@@ -17,6 +17,8 @@ const config = {
   convert_urls: false,
   paste_as_text: true,
   paste_data_images: true,
+  autoresize_min_height: 500,
+  //autofloat_top_offset: 50,
 };
 
 class App extends Component {
