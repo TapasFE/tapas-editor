@@ -6,8 +6,8 @@ const config = {
   statusbar: false,
   resize: false,
   menubar: '',
-  toolbar: 'undo redo | bold removeformat link image searchreplace t_image t_d2s t_simp2trad t_trad2simp',
-  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image t_autofloat',
+  toolbar: 'undo redo | bold removeformat link image searchreplace t_image t_d2s t_simp2trad t_trad2simp t_md',
+  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image t_autofloat t_md',
   content_style:
     '*{line-height:25px;color:#555;font-size:15px;font-family:\'Hiragino Sans GB\',\'Microsoft YaHei\',\'黑体\',Helvetica,Arial,Tahoma,sans-serif;}' +
     'img{max-width:100%;}' +

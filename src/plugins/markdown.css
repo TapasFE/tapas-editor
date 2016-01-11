@@ -1,0 +1,42 @@
+.mce-panel-t-md {
+  position: relative;
+  background: white;
+  float: left;
+  width: 50%;
+  margin-right: -2px;
+  overflow: auto;
+}
+.mce-panel-t-md > div {
+  position: relative;
+}
+.mce-panel-t-md > div > * {
+  box-sizing: border-box;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.mce-panel-t-md pre {
+  display: block;
+  visibility: hidden;
+}
+.mce-panel-t-md textarea {
+  position: absolute;
+  resize: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.mce-panel-t-md + iframe {
+  width: 50% !important;
+  margin-left: 50%;
+  border-left: 1px solid rgba(0,0,0,.2);
+}
+.mce-edit-area::after {
+  content: ' ';
+  display: block;
+  height: 0;
+  clear: both;
+}

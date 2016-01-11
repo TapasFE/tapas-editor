@@ -59,6 +59,7 @@ requirePlugins([
   'simp-trad',
   'image',
   'autofloat',
+  'markdown',
 ].forEach(plugin => require(`./plugins/${plugin}`));
 
 const defaultConfig = {
