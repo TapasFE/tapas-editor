@@ -1,3 +1,13 @@
+/**
+ * @desc Autofloat plugin for TinyMCE
+ *
+ * This plugin floats the toolbar when page scrolls up.
+ *
+ * Settings:
+ * - autofloat_top_offset {Number} default as 0
+ *
+ */
+
 import tinymce from '../tinymce';
 
 tinymce.PluginManager.add('t_autofloat', editor => {

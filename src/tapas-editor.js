@@ -59,6 +59,7 @@ requirePlugins([
   'simp-trad',
   'image',
   'autofloat',
+  'cursor',
   //'markdown',
 ].forEach(plugin => require(`./plugins/${plugin}`));
 
@@ -100,7 +101,7 @@ class TapasEditor extends Component {
     if (this.props.config !== nextProps.config) {
       this._init(nextProps.config, nextProps.content);
     } else if (this.props.content != nextProps.content) {
-      this._editor && this._editor.setContent(nextProps.content);
+      this._editor && this._editor.setContent(nextProps.content || '');
     }
     if (this.props.id !== nextProps.id) {
       this.id = nextProps.id;
