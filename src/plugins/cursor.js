@@ -1,11 +1,8 @@
 /**
  * @desc Cursor plugin for TinyMCE
  *
- * This plugin moves cursor out of certain tags to avoid unexpected formatted
- * text.
- *
- * Settings:
- * - cursor_out_of {String | Array} CSS selector or array of CSS selectors
+ * This plugin keeps cursor out of tags as expected when `setRng` is
+ * called.
  *
  */
 
@@ -15,21 +12,29 @@ import tinymce from '../tinymce';
 const MAGIC_SPACE = '\u200b';
 const RE_MAGIC_SPACE = new RegExp(MAGIC_SPACE, 'g');
 
-tinymce.PluginManager.add('t_cursor', (editor) => {
+tinymce.PluginManager.add('t_cursor', editor => {
   let magicSpace;
+  let noMagic = false;
 
-  let cursorOutOf = editor.settings.cursor_out_of;
-  if (!Array.isArray(cursorOutOf)) cursorOutOf = [cursorOutOf];
-  cursorOutOf.reverse();
+  editor.on('keydown', onKeyDown);
 
-  if (cursorOutOf.length) {
-    editor.on('NodeChange', moveCursor);
+  editor.on('GetContent', e => {
+    e.content = e.content.replace(RE_MAGIC_SPACE, '');
+  });
 
-    editor.on('keydown', onKeyDown);
+  editor.on('SetSelectionRange', onBeforeSetRange);
 
-    editor.on('GetContent', (e) => {
-      e.content = e.content.replace(RE_MAGIC_SPACE, '');
-    });
+  function onBeforeSetRange(e) {
+    const rng = e.range;
+    if (!noMagic && rng.collapsed && rng.endContainer.nodeType === 1) {
+      const doc = editor.contentDocument;
+      const temp = doc.createTextNode(MAGIC_SPACE);
+      rng.insertNode(temp);
+      removeMagicSpace();
+      rng.selectNode(temp);
+      rng.collapse();
+      magicSpace = temp;
+    }
   }
 
   function onKeyDown(e) {
@@ -68,62 +73,10 @@ tinymce.PluginManager.add('t_cursor', (editor) => {
       }
       range.setStart(cursor.container, cursor.offset);
       range.setEnd(cursor.container, cursor.offset);
+      noMagic = true;
       editor.selection.setRng(range);
+      noMagic = false;
     }
-  }
-
-  function moveCursor() {
-    let i, j;
-    for (j = 20; j --; ) {
-      for (i = cursorOutOf.length; i --; ) {
-        const selector = cursorOutOf[i];
-        if (moveOut(selector)) break;
-      }
-      if (i < 0) break;
-    }
-    if (!j) {
-      console.warn('Node change iterations reached maximum limit!');
-    }
-  }
-
-  function moveOut(selector) {
-    const range = editor.selection.getRng();
-    if (!range.collapsed) return;
-    const dom = editor.dom;
-    const tag = dom.getParent(range.endContainer, selector);
-    let cursorMoved = false;
-    if (tag) {
-      if (tag === range.endContainer.parentNode) {
-        if (!range.endOffset) {
-          setCursor(tag, range);
-          cursorMoved = true;
-        } else if (range.endOffset === range.endContainer.length) {
-          setCursor(tag, range, true);
-          cursorMoved = true;
-        }
-      }
-    }
-    return cursorMoved;
-  }
-
-  function setCursor(el, range, after) {
-    range = range || editor.selection.getRng();
-    if (after) {
-      range.setStartAfter(el);
-      range.setEndAfter(el);
-    } else {
-      range.setStartBefore(el);
-      range.setEndBefore(el);
-    }
-
-    const doc = editor.contentDocument;
-    const temp = doc.createTextNode(MAGIC_SPACE);
-    range.insertNode(temp);
-    removeMagicSpace();
-    range.selectNode(temp);
-    range.collapse();
-    editor.selection.setRng(range);
-    magicSpace = temp;
   }
 
   function removeMagicSpace() {
