@@ -19,8 +19,32 @@ const config = {
   paste_data_images: true,
   autoresize_min_height: 500,
   //autofloat_top_offset: 50,
-  cursor_out_of: 'strong',
+  setup,
 };
+
+function setup(editor) {
+  editor.on('NodeChange SelectionChange', e => {
+    const range = editor.selection.getRng();
+    if (!range.collapsed) return;
+    const dom = editor.dom;
+    const el = dom.getParent(range.endContainer, 'strong');
+    let cursorMoved;
+    if (el) {
+      if (el === range.endContainer.parentNode) {
+        if (!range.endOffset) {
+          range.setStartBefore(el);
+          range.setEndBefore(el);
+          cursorMoved = true;
+        } else if (range.endOffset === range.endContainer.length) {
+          range.setStartAfter(el);
+          range.setEndAfter(el);
+          cursorMoved = true;
+        }
+      }
+    }
+    cursorMoved && editor.selection.setRng(range);
+  });
+}
 
 class App extends Component {
   constructor(props) {

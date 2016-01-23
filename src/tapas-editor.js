@@ -132,13 +132,13 @@ class TapasEditor extends Component {
   }
 
   _init(config, content) {
-    config = Object.assign({}, defaultConfig, config);
+    const _config = Object.assign({}, defaultConfig, config);
     this._isInit && this._remove();
 
     findDOMNode(this).style.hidden = 'hidden';
 
-    config.selector = `#${this.id}`;
-    config.setup = (editor) => {
+    _config.selector = `#${this.id}`;
+    _config.setup = (editor) => {
       const events = this.props.events || {};
       for (let type in events) {
         const handler = events[type];
@@ -152,9 +152,10 @@ class TapasEditor extends Component {
         this._editor = editor;
         content && editor.setContent(content);
       });
+      config.setup && config.setup(editor);
     };
 
-    tinymce.init(config);
+    tinymce.init(_config);
 
     findDOMNode(this).style.hidden = '';
 
