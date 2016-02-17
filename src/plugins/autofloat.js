@@ -47,7 +47,7 @@ tinymce.PluginManager.add('t_autofloat', editor => {
         backgroundColor: '#f0f0f0',
         padding: '2px 0',
         borderBottom: '1px solid rgba(0,0,0,.2)',
-        zIndex: 10000,
+        zIndex: 9999,
       };
       editor.$(toolbar).css('height', toolbarBody.offsetHeight);
       editor.$(toolbarBody).css(css);

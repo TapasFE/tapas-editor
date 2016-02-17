@@ -26,7 +26,7 @@ tinymce.PluginManager.add('t_cursor', editor => {
 
   function onBeforeSetRange(e) {
     const rng = e.range;
-    if (!noMagic && rng.collapsed && rng.endContainer.nodeType === 1) {
+    if (!noMagic && rng.collapsed && rng.endContainer.nodeType === 1 && rng.endOffset) {
       const doc = editor.contentDocument;
       const temp = doc.createTextNode(MAGIC_SPACE);
       rng.insertNode(temp);
