@@ -26,7 +26,13 @@ tinymce.PluginManager.add('t_cursor', editor => {
 
   function onBeforeSetRange(e) {
     const rng = e.range;
-    if (!noMagic && rng.collapsed && rng.endContainer.nodeType === 1 && rng.endOffset) {
+    let addMagic = !noMagic && rng.collapsed && rng.endContainer.nodeType === 1 && rng.endOffset;
+    if (addMagic) {
+      // ignore case: `<p><br>|</p>`
+      const prev = rng.endContainer.childNodes[rng.endOffset - 1];
+      if (prev && prev.tagName.toLowerCase === 'br') addMagic = false;
+    }
+    if (addMagic) {
       const doc = editor.contentDocument;
       const temp = doc.createTextNode(MAGIC_SPACE);
       rng.insertNode(temp);
