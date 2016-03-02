@@ -30,7 +30,7 @@ tinymce.PluginManager.add('t_cursor', editor => {
     if (addMagic) {
       // ignore case: `<p><br>|</p>`
       const prev = rng.endContainer.childNodes[rng.endOffset - 1];
-      if (prev && prev.tagName.toLowerCase === 'br') addMagic = false;
+      if (prev && prev.tagName && prev.tagName.toLowerCase() === 'br') addMagic = false;
     }
     if (addMagic) {
       const doc = editor.contentDocument;
