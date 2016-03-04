@@ -79,14 +79,17 @@ class TapasEditor extends Component {
     config: React.PropTypes.object,
     content: React.PropTypes.string,
     events: React.PropTypes.object,
+    onChange: React.PropTypes.func,
   };
 
   constructor(props) {
-    super(props || {
+    super(Object.assign({
       config: {},
       content: '',
       events: {},
-    });
+    }, props));
+    // cache content to avoid repeated update due to differences caused by output rules
+    this.content = this.props.content;
   }
 
   componentWillMount() {
@@ -100,8 +103,8 @@ class TapasEditor extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.config !== nextProps.config) {
       this._init(nextProps.config, nextProps.content);
-    } else if (this.props.content != nextProps.content) {
-      this._editor && this._editor.setContent(nextProps.content || '');
+    } else if (this.content !== nextProps.content) {
+      this._editor && this._editor.setContent(this.content = nextProps.content || '');
     }
     if (this.props.id !== nextProps.id) {
       this.id = nextProps.id;
@@ -109,7 +112,7 @@ class TapasEditor extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.props.content != nextProps.content || this.props.config !== nextProps.config;
+    return this.content != nextProps.content || this.props.config !== nextProps.config;
   }
 
   componentWillUnmount() {
@@ -151,6 +154,12 @@ class TapasEditor extends Component {
       editor.on('init', () => {
         this._editor = editor;
         content && editor.setContent(content);
+      });
+      editor.on('change', () => {
+        // Set to `null` to mark a change in content
+        this.content = null;
+        // If `props.onChange` is provided, update cached content
+        this.props.onChange && this.props.onChange(this.content = editor.getContent());
       });
       config.setup && config.setup(editor);
     };

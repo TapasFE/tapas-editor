@@ -59,26 +59,26 @@ class App extends Component {
     }, 1000);
   }
 
-  handleChange(e, editor) {
-    this.content = editor.getContent();
-    console.log(this.content);
+  handleChange = (content) => {
+    console.log('content changed to:', content);
+    this.setState({
+      content,
+    });
   }
 
   handleUpload(e, editor) {
     const file = e.data;
-    const cb = e.callback;
 
     // Upload the image and callback with the URL.
     // We will just create an object URL in this demo.
     const url = URL.createObjectURL(file);
     setTimeout(() => URL.revokeObjectURL(url));
 
-    cb(url);
+    e.callback(url);
   }
 
   render() {
     const events = {
-      change: ::this.handleChange,
       TUploadImage: this.handleUpload,
     };
     return (
@@ -86,6 +86,7 @@ class App extends Component {
         config={config}
         events={events}
         content={this.state.content}
+        onChange={this.handleChange}
       />
     );
   }
