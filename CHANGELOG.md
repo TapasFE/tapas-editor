@@ -1,6 +1,12 @@
 Changelog
 ===
 
+1.0.4
+---
+
+* Cached content to avoid extra change events due to output rules.
+* Add cursor plugin.
+
 1.0.2
 ---
 

@@ -2,6 +2,8 @@ Tapas-Editor
 ===
 
 ![NPM](https://img.shields.io/npm/v/tapas-editor.svg)
+![License](https://img.shields.io/npm/l/tapas-editor.svg)
+![Downloads](https://img.shields.io/npm/dt/tapas-editor.svg)
 
 A React editor component based on [TinyMCE](https://www.tinymce.com).
 
@@ -10,7 +12,24 @@ Usage
 ``` javascript
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Editor from 'tapas-editor';
+import TapasEditor from 'tapas-editor';
+
+class Editor extends React.Component {
+  state = {
+    content: 'Initial content',
+  }
+
+  handleChange = (content) => {
+    this.setState({
+      content,
+    });
+    console.log('Content changed.');
+  }
+
+  render() {
+    return <TapasEditor onChange={this.handleChange} />
+  }
+}
 
 ReactDOM.render(<Editor />, document.body);
 ```
