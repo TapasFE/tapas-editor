@@ -1,6 +1,6 @@
 {
   "name": "tapas-editor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Tapas Editor",
   "main": "./index.js",
   "scripts": {
