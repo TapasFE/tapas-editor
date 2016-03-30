@@ -46,8 +46,6 @@ tinymce.PluginManager.add('my_plugin', editor => {
 Development
 ---
 ``` sh
-# Build
-$ npm run build
 # Run demo
 $ npm start
 ```
