@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {findDOMNode} from 'react-dom';
 import {requireTheme, requireSkin, requireContentStyle, requirePlugins, generateId} from './utils';
 import tinymce from './tinymce';
 
@@ -82,12 +81,15 @@ class TapasEditor extends Component {
     onChange: React.PropTypes.func,
   };
 
+  static defaultProps = {
+    config: {},
+    content: '',
+    events: {},
+  };
+
   constructor(props) {
-    super(Object.assign({
-      config: {},
-      content: '',
-      events: {},
-    }, props));
+    super(props);
+    console.log(this.props);
     // cache content to avoid repeated update due to differences caused by output rules
     this.content = this.props.content;
   }
@@ -97,14 +99,14 @@ class TapasEditor extends Component {
   }
 
   componentDidMount() {
-    this._init(this.props.config, this.props.content);
+    this.initEditor(this.props.config, this.props.content);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.config !== nextProps.config) {
-      this._init(nextProps.config, nextProps.content);
+      this.initEditor(nextProps.config, nextProps.content);
     } else if (this.content !== nextProps.content) {
-      this._editor && this._editor.setContent(this.content = nextProps.content || '');
+      this.editor && this.editor.setContent(this.content = nextProps.content || '');
     }
     if (this.props.id !== nextProps.id) {
       this.id = nextProps.id;
@@ -116,7 +118,7 @@ class TapasEditor extends Component {
   }
 
   componentWillUnmount() {
-    this._remove();
+    this.removeEditor();
   }
 
   render() {
@@ -134,47 +136,45 @@ class TapasEditor extends Component {
     );
   }
 
-  _init(config, content) {
-    const _config = Object.assign({}, defaultConfig, config);
-    this._isInit && this._remove();
-
-    findDOMNode(this).style.hidden = 'hidden';
-
-    _config.selector = `#${this.id}`;
-    _config.setup = (editor) => {
-      const events = this.props.events || {};
-      for (let type in events) {
-        const handler = events[type];
-        if (typeof handler === 'function') {
-          editor.on(type, (e) => {
-            handler(e, editor);
+  initEditor(config, content) {
+    this.initialized && this.removeEditor();
+    const editorConfig = {
+      ... defaultConfig,
+      ... config,
+      selector: `#${this.id}`,
+      setup: (setup => {
+        return editor => {
+          const events = this.props.events || {};
+          for (let type in events) {
+            const handler = events[type];
+            if (typeof handler === 'function') {
+              editor.on(type, e => {
+                handler(e, editor);
+              });
+            }
+          }
+          editor.on('init', () => {
+            this.editor = editor;
+            content && editor.setContent(content);
           });
-        }
-      }
-      editor.on('init', () => {
-        this._editor = editor;
-        content && editor.setContent(content);
-      });
-      editor.on('change', () => {
-        // Set to `null` to mark a change in content
-        this.content = null;
-        // If `props.onChange` is provided, update cached content
-        this.props.onChange && this.props.onChange(this.content = editor.getContent());
-      });
-      config.setup && config.setup(editor);
+          editor.on('change', () => {
+            // Set to `null` to mark a change in content
+            this.content = null;
+            // If `props.onChange` is provided, update cached content
+            this.props.onChange && this.props.onChange(this.content = editor.getContent());
+          });
+          setup && setup(editor);
+        };
+      })(config.setup),
     };
-
-    tinymce.init(_config);
-
-    findDOMNode(this).style.hidden = '';
-
-    this._isInit = true;
+    tinymce.init(editorConfig);
+    this.initialized = true;
   }
 
-  _remove() {
+  removeEditor() {
     tinymce.EditorManager.execCommand('mceRemoveEditor', true, this.id);
-    this._isInit = false;
-    this._editor = null;
+    this.initialized = false;
+    this.editor = null;
   }
 }
 

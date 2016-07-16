@@ -19,7 +19,7 @@ class Editor extends React.Component {
     content: 'Initial content',
   }
 
-  handleChange = (content) => {
+  handleChange = content => {
     this.setState({
       content,
     });

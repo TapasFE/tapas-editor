@@ -106,24 +106,22 @@ export function move(editor, floatEl, targetEl, policy, offset) {
  */
 export function selectFiles(options, cb) {
   options = options || {};
-  const file = document.createElement('input');
-  file.setAttribute('type', 'file');
-  if (options.accept)
-    file.setAttribute('accept', options.accept);
-  if (options.multiple)
-    file.multiple = true;
-  file.onchange = function () {
+  const input = document.createElement('input');
+  input.setAttribute('type', 'input');
+  if (options.accept) input.setAttribute('accept', options.accept);
+  if (options.multiple) input.multiple = true;
+  input.onchange = function () {
     if (this.files && this.files.length) {
       cb(options.multiple ? this.files : this.files[0]);
     }
   };
 
   // IE fix: `input[file]` MUST be attached to DOM
-  file.setAttribute('style', 'display:none');
-  document.body.appendChild(file);
+  input.setAttribute('style', 'display:none');
+  document.body.appendChild(input);
 
-  file.click();
-  document.body.removeChild(file);
+  input.click();
+  document.body.removeChild(input);
 };
 
 /**
