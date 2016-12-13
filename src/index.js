@@ -1,86 +1,23 @@
-import React, {Component} from 'react';
-import {requireTheme, requireSkin, requireContentStyle, requirePlugins, generateId} from './utils';
+import React from 'react';
 import tinymce from './tinymce';
+import './plugins/autofloat';
+import './plugins/cursor';
+import './plugins/image';
 
-// Import default theme
-requireTheme();
-
-// Import default skin
-requireSkin();
-
-// Import available plugins
-requirePlugins([
-  'advlist',
-  'anchor',
-  'autolink',
-  'autoresize',
-  'autosave',
-  'bbcode',
-  'charmap',
-  'code',
-  'codesample',
-  'colorpicker',
-  'contextmenu',
-  'directionality',
-  'emoticons',
-  'fullpage',
-  'fullscreen',
-  'hr',
-  'image',
-  'imagetools',
-  'importcss',
-  'insertdatetime',
-  'layer',
-  'legacyoutput',
-  'link',
-  'lists',
-  'media',
-  'nonbreaking',
-  'noneditable',
-  'pagebreak',
-  'paste',
-  'preview',
-  'print',
-  'save',
-  'searchreplace',
-  'spellchecker',
-  'tabfocus',
-  'table',
-  'template',
-  'textcolor',
-  'textpattern',
-  'visualblocks',
-  'visualchars',
-  'wordcount',
-]);
-[
-  'd2s',
-  'simp-trad',
-  'image',
-  'autofloat',
-  'cursor',
-  //'markdown',
-].forEach(plugin => require(`./plugins/${plugin}`));
+const getId = function () {
+  function getId() {
+    return `tapas-editor-${++ id}`;
+  }
+  let id = 0;
+  return getId;
+}();
 
 const defaultConfig = {
-  // Import default content CSS for the corresponding skin
-  content_style: requireContentStyle(),
   // Avoid `skin` to be loaded from URL
   skin: false,
 };
 
-class TapasEditor extends Component {
-  static displayName = 'TapasEditor';
-
-  static propTypes = {
-    id: React.PropTypes.string,
-    className: React.PropTypes.string,
-    config: React.PropTypes.object,
-    content: React.PropTypes.string,
-    events: React.PropTypes.object,
-    onChange: React.PropTypes.func,
-  };
-
+class TapasEditor extends React.Component {
   static defaultProps = {
     config: {},
     content: '',
@@ -89,13 +26,12 @@ class TapasEditor extends Component {
 
   constructor(props) {
     super(props);
-    console.log(this.props);
     // cache content to avoid repeated update due to differences caused by output rules
-    this.content = this.props.content;
+    this.content = props.content;
   }
 
   componentWillMount() {
-    this.id = this.id || this.props.id || generateId();
+    this.id = this.id || this.props.id || getId();
   }
 
   componentDidMount() {
@@ -114,7 +50,7 @@ class TapasEditor extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.content != nextProps.content || this.props.config !== nextProps.config;
+    return this.content !== nextProps.content || this.props.config !== nextProps.config;
   }
 
   componentWillUnmount() {
@@ -144,15 +80,16 @@ class TapasEditor extends Component {
       selector: `#${this.id}`,
       setup: (setup => {
         return editor => {
-          const events = this.props.events || {};
-          for (let type in events) {
+          const {events} = this.props;
+          events && Object.keys(events)
+          .forEach(type => {
             const handler = events[type];
             if (typeof handler === 'function') {
               editor.on(type, e => {
                 handler(e, editor);
               });
             }
-          }
+          });
           editor.on('init', () => {
             this.editor = editor;
             content && editor.setContent(content);
@@ -179,5 +116,3 @@ class TapasEditor extends Component {
 }
 
 export default TapasEditor;
-
-export {tinymce};

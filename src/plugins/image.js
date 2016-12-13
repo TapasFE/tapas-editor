@@ -1,10 +1,10 @@
 import tinymce from '../tinymce';
-import {selectFiles, dataURL2Blob} from './_base';
+import {selectFiles, dataURL2Blob} from './base';
 
 tinymce.PluginManager.add('t_image', editor => {
   editor.addButton('t_image', {
     icon: 'image',
-    tooltip: '插入图片',
+    tooltip: 'Insert image',
     onclick: () => {
       selectFiles({accept: 'image/*'}, file => {
         fireUpload(file);

@@ -1,16 +1,20 @@
-import React, {Component} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import TapasEditor from '../lib/tapas-editor';
+import 'tinymce';
+import 'tinymce/themes/modern/theme';
+import 'tinymce/skins/lightgray/skin.min.css';
+import 'tinymce/plugins/autoresize';
+import 'imports?this=>window!tinymce/plugins/paste/plugin';
+import 'tinymce/plugins/searchreplace';
+import TapasEditor from '../lib';
 
 const config = {
   statusbar: false,
   resize: false,
   menubar: '',
-  toolbar: 'undo redo | bold removeformat link image searchreplace t_image t_d2s t_simp2trad t_trad2simp',
-  plugins: 'searchreplace autoresize paste t_d2s t_simp_trad t_image t_autofloat t_cursor',
-  content_style:
-    'img{max-width:100%;}' +
-    'table{width:100%}',
+  toolbar: 'undo redo | bold removeformat searchreplace t_image',
+  plugins: 'autoresize paste searchreplace t_image t_autofloat t_cursor',
+  content_style: 'img{max-width:100%;}table{width:100%}',
   extended_valid_elements: 'a[href|href-id|target=_blank|title]',
   paste_as_text: true,
   autoresize_min_height: 500,
@@ -42,7 +46,7 @@ function setup(editor) {
   });
 }
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

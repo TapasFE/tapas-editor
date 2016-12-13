@@ -1,3 +1,5 @@
-import tinymce from 'tinymce/tinymce';
+if (!window.tinymce) {
+  throw new Error('TinyMCE is not found!');
+}
 
-export default tinymce;
+export default window.tinymce;

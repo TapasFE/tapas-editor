@@ -7,7 +7,6 @@
  * - autofloat_top_offset {Number} default as 0
  *
  */
-
 import tinymce from '../tinymce';
 
 tinymce.PluginManager.add('t_autofloat', editor => {

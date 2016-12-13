@@ -5,7 +5,6 @@
  * called.
  *
  */
-
 import tinymce from '../tinymce';
 
 // U+200B is a zero-width space
