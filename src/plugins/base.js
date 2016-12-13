@@ -26,17 +26,33 @@ export function selectFiles(options, cb) {
 };
 
 /**
- * @desc Transform a DataURL to Blob or File.
+ * @desc Transform a DataURL or object URL to Blob.
  * @param {String} url
  * @return {Blob}
  */
-export function dataURL2Blob(url) {
-  const parts = url.split(',');
-  const byteString = atob(parts[1]);
-  const mimeType = parts[0].split(':')[1].split(';')[0];
-  const buf = [];
-  for (let i = byteString.length; i --;) {
-    buf[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([new Uint8Array(buf)], {type: mimeType});
+export function url2blob(url) {
+  return new Promise((resolve, reject) => {
+    if (/^data:/.test(url)) {
+      const parts = url.split(',');
+      const byteString = atob(parts[1]);
+      const mimeType = parts[0].split(':')[1].split(';')[0];
+      const buf = [];
+      for (let i = byteString.length; i --;) {
+        buf[i] = byteString.charCodeAt(i);
+      }
+      return resolve(new Blob([new Uint8Array(buf)], {type: mimeType}));
+    }
+    if (/^blob:/.test(url)) {
+      const xhr = new XMLHttpRequest;
+      xhr.responseType = 'blob';
+      xhr.open('GET', url, true);
+      xhr.onloadend = function () {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+        else reject(url);
+      };
+      xhr.send();
+      return;
+    }
+    reject(url);
+  });
 };

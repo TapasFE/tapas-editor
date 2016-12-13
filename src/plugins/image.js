@@ -1,5 +1,5 @@
 import tinymce from '../tinymce';
-import {selectFiles, dataURL2Blob} from './base';
+import {selectFiles, url2blob} from './base';
 
 tinymce.PluginManager.add('t_image', editor => {
   editor.addButton('t_image', {
@@ -16,8 +16,7 @@ tinymce.PluginManager.add('t_image', editor => {
     const matches = html.match(/^<img src="(.*?)">$/);
     if (matches) {
       e.preventDefault();
-      const file = dataURL2Blob(matches[1]);
-      fireUpload(file);
+      url2blob(matches[1]).then(fireUpload);
     }
   });
 
