@@ -16,10 +16,10 @@ tinymce.PluginManager.add('t_autofloat', editor => {
     const toolbar = container.querySelector('.mce-toolbar-grp');
     const toolbarBody = toolbar.firstElementChild;
     let floated = false;
-    window.addEventListener('scroll', onScroll, false);
+    window.addEventListener('scroll', onScroll, true);
     window.addEventListener('resize', onResize, false);
     editor.on('remove', () => {
-      window.removeEventListener('scroll', onScroll, false);
+      window.removeEventListener('scroll', onScroll, true);
       window.removeEventListener('resize', onResize, false);
     });
 
