@@ -22,12 +22,12 @@ import 'tinymce/skins/lightgray/skin.min.css';
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/searchreplace';
 // Import buggy tinymce plugins
-import 'imports?this=>window!tinymce/plugins/paste';
+import 'imports?this=>window!tinymce/plugins/paste/plugin';
 
 // Import TapasEditor
 import TapasEditor from 'tapas-editor';
 
-import contentStyle from 'css!tinymce/skins/lightgray/content.min.css';
+import contentStyle from '!css!tinymce/skins/lightgray/content.min.css';
 const config = {
   content_style: contentStyle.map(item => item[1]).join(''),
 };
