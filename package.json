@@ -36,12 +36,14 @@
     "react-dom": "^15.2.1",
     "style-loader": "^0.13.1",
     "tapas-build": "^0.4.5",
-    "tinymce": "^4.4.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1"
   },
   "tapas": {
     "entry": "./demo/app.js",
     "output": "./build"
+  },
+  "peerDependencies": {
+    "tinymce": "^4.5.1"
   }
 }
