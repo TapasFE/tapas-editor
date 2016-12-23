@@ -13,12 +13,12 @@ const config = {
   resize: false,
   menubar: '',
   toolbar: 'undo redo | bold removeformat searchreplace t_image',
-  plugins: 'autoresize paste searchreplace t_image t_autofloat t_cursor',
+  plugins: 'autoresize paste searchreplace t_image t_autofloat t_cursor t_filter',
   content_style: 'img{max-width:100%;}table{width:100%}',
   extended_valid_elements: 'a[href|href-id|target=_blank|title]',
-  paste_as_text: true,
+  // paste_as_text: true,
   autoresize_min_height: 500,
-  //autofloat_top_offset: 50,
+  // autofloat_top_offset: 50,
   setup,
 };
 

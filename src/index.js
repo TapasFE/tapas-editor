@@ -3,6 +3,8 @@ import tinymce from './tinymce';
 import './plugins/autofloat';
 import './plugins/cursor';
 import './plugins/image';
+import './plugins/filter';
+import {debounce} from './utils';
 
 const getId = function () {
   function getId() {
@@ -42,7 +44,7 @@ class TapasEditor extends React.Component {
     if (this.props.config !== nextProps.config) {
       this.initEditor(nextProps.config, nextProps.content);
     } else if (this.content !== nextProps.content) {
-      this.editor && this.editor.setContent(this.content = nextProps.content || '');
+      this.editor && this.setContent(this.content = nextProps.content || '');
     }
     if (this.props.id !== nextProps.id) {
       this.id = nextProps.id;
@@ -72,6 +74,13 @@ class TapasEditor extends React.Component {
     );
   }
 
+  setContent(content) {
+    const {editor} = this;
+    if (!editor) return;
+    editor.setContent(content);
+    editor.fire('TFilterHtml', {data: content});
+  }
+
   initEditor(config, content) {
     this.initialized && this.removeEditor();
     const editorConfig = {
@@ -92,14 +101,14 @@ class TapasEditor extends React.Component {
           });
           editor.on('init', () => {
             this.editor = editor;
-            content && editor.setContent(content);
+            content && this.setContent(content);
           });
-          editor.on('change', () => {
+          editor.on('change', debounce(() => {
             // Set to `null` to mark a change in content
             this.content = null;
             // If `props.onChange` is provided, update cached content
             this.props.onChange && this.props.onChange(this.content = editor.getContent());
-          });
+          }));
           setup && setup(editor);
         };
       })(config.setup),
