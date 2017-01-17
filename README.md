@@ -21,8 +21,10 @@ import 'tinymce/skins/lightgray/skin.min.css';
 // Import tinymce plugins
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/searchreplace';
-// Import buggy tinymce plugins
-import 'imports?this=>window!tinymce/plugins/paste/plugin';
+import 'tinymce/plugins/paste';
+
+// Import buggy tinymce plugins in tinymce 4.5.1-
+// import 'imports?this=>window!tinymce/plugins/paste/plugin';
 
 // Import TapasEditor
 import TapasEditor from 'tapas-editor';

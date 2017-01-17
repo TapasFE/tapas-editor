@@ -44,6 +44,6 @@
     "output": "./build"
   },
   "peerDependencies": {
-    "tinymce": "^4.5.1"
+    "tinymce": "^4.5.2"
   }
 }
