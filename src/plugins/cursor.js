@@ -36,6 +36,10 @@ tinymce.PluginManager.add('t_cursor', editor => {
       if (rng.endContainer === editor.getDoc().body) addMagic = false;
     }
     if (addMagic) {
+      // ignore `<figure>...</figure>`
+      if (editor.dom.getParent(rng.endContainer, 'figure')) addMagic = false;
+    }
+    if (addMagic) {
       const doc = editor.contentDocument;
       const temp = doc.createTextNode(MAGIC_SPACE);
       rng.insertNode(temp);

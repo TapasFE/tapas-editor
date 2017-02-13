@@ -4,7 +4,7 @@ import 'tinymce';
 import 'tinymce/themes/modern/theme';
 import 'tinymce/skins/lightgray/skin.min.css';
 import 'tinymce/plugins/autoresize';
-import 'imports?this=>window!tinymce/plugins/paste/plugin';
+import 'tinymce/plugins/paste';
 import 'tinymce/plugins/searchreplace';
 import TapasEditor from '../lib';
 
@@ -14,11 +14,12 @@ const config = {
   menubar: '',
   toolbar: 'undo redo | bold removeformat searchreplace t_image',
   plugins: 'autoresize paste searchreplace t_image t_autofloat t_cursor t_filter',
-  content_style: 'img{max-width:100%;}table{width:100%}',
+  content_style: 'img{max-width:100%;}table{width:100%}figure{border:1px solid #ddd;text-align:center}',
   extended_valid_elements: 'a[href|href-id|target=_blank|title]',
   // paste_as_text: true,
   autoresize_min_height: 500,
   // autofloat_top_offset: 50,
+  image_in_figure: true,
   setup,
 };
 
