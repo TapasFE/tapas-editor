@@ -73,7 +73,7 @@ class App extends React.Component {
     // Upload the image and callback with the URL.
     // We will just create an object URL in this demo.
     const url = URL.createObjectURL(file);
-    setTimeout(() => URL.revokeObjectURL(url));
+    // setTimeout(() => URL.revokeObjectURL(url));
 
     e.callback(url);
   }

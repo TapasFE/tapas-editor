@@ -45,13 +45,15 @@ tinymce.PluginManager.add('t_image', editor => {
     const id = '__tapas_editor_figure';
     editor.selection.setContent(dom.createHTML('figure', {
       id,
-      contentEditable: false,
+      // contentEditable: false,
     }));
     const figure = dom.get(id);
     dom.setAttrib(figure, 'id', null);
     const img = dom.create('img', {src: url});
     figure.appendChild(img);
-    figure.appendChild(dom.create('figcaption', {contentEditable: true}, text));
+    figure.appendChild(dom.create('figcaption', {
+      // contentEditable: true,
+    }, text));
     const textBlock = dom.getParent(figure.parentNode, isTextBlock);
     if (textBlock) {
       dom.split(textBlock, figure, figure);

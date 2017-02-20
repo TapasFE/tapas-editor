@@ -78,7 +78,7 @@ class TapasEditor extends React.Component {
     const {editor} = this;
     if (!editor) return;
     editor.setContent(content);
-    editor.fire('TFilterHtml', {data: content});
+    // editor.fire('TFilterHtml', {data: content});
   }
 
   initEditor(config, content) {

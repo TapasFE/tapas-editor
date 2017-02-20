@@ -4,131 +4,174 @@
 
 import tinymce from '../tinymce';
 
-function filterHTML(editor, html) {
-  var schema = new tinymce.html.Schema(), domParser = new tinymce.html.DomParser({}, schema), text = '';
-  var shortEndedElements = schema.getShortEndedElements();
-  var ignoreElements = tinymce.util.Tools.makeMap('script noscript style textarea video audio iframe object', ' ');
-  var blockElements = schema.getBlockElements();
+const ignoreElements = tinymce.util.Tools.makeMap('script noscript style textarea video audio iframe object', ' ');
+const schema = new tinymce.html.Schema();
+const domParser = new tinymce.html.DomParser({}, schema);
+const serializer = new tinymce.html.Serializer();
+const shortEndedElements = schema.getShortEndedElements();
+const blockElements = schema.getBlockElements();
+const inlineFilters = {
+  strong: filterInline,
+  em: filterInline,
+};
+const tagFilters = Object.assign({
+  br: filterBr,
+  figure: filterFigure,
+  img: filterImg,
+}, inlineFilters);
 
+function buildFigure(item) {
+  return `<figure><img src="${item.image || ''}"><figcaption>${item.caption || '<br>'}</figcaption></figure>`;
+}
+function buildInline(item) {
+  const html = `<${item.close ? '/' : ''}${item.name}>`;
+}
+function filterBr(node, ctx) {
+  return {
+    name: 'br',
+    close: true,
+    html(item) {
+      return ctx.newLine;
+    },
+  };
+}
+function filterFigure(node, ctx) {
+  const item = {
+    name: 'figure',
+    close: true,
+    html: buildFigure,
+  };
+  for (let child = node.firstChild; child; child = child.next) {
+    if (child.name === 'img') {
+      item.image = child.attr('src');
+    } else if (child.name === 'figcaption') {
+      item.caption = filterNodeInline(ctx.editor, child);
+    }
+  }
+  return item;
+}
+function filterImg(node, ctx) {
+  return {
+    name: 'figure',
+    image: node.attr('src'),
+    close: true,
+    html: buildFigure,
+  };
+}
+function filterInline(node, ctx, close) {
+  return {
+    name: node.name,
+    data: node.firstChild,
+    html: buildInline,
+    close,
+  };
+}
+
+function filterNode(editor, root, inline) {
   function walk(node) {
-    var name = node.name, currentNode = node;
+    const {name} = node;
+    const filter = filters[name];
 
-    if (name === 'br') {
-      text += '\n';
-      return;
-    }
-
-    if (name === 'img') {
-      text += '\x02img\x02' + node.attr('src') + '\x02\n';
-      return;
-    }
-
-    if (name === 'strong') {
-      text += '\x03strong\x03';
-    }
-
-    // img/input/hr
-    if (shortEndedElements[name]) {
-      text += ' ';
-    }
-
-    // Ingore script, video contents
-    if (ignoreElements[name]) {
-      text += ' ';
-      return;
+    if (filter) {
+      const item = filter(node, ctx);
+      contents.push(item);
+      if (item.close) return;
     }
 
     if (node.type == 3) {
-      text += node.value;
+      contents.push({text: node.value});
     }
 
-    // Walk all children
     if (!node.shortEnded) {
-      if ((node = node.firstChild)) {
-        do {
-          walk(node);
-        } while ((node = node.next));
+      for (let child = node.firstChild; child; child = child.next) {
+        walk(child);
       }
     }
 
-    if (name === 'strong') {
-      text += '\x03/strong\x03';
+    if (filter) {
+      const item = filter(node, ctx, true);
+      contents.push(item);
       return;
     }
 
-    // Add \n or \n\n for blocks or P
-    if (blockElements[name] && currentNode.next) {
-      text += '\n';
-
-      if (name == 'p') {
-        text += '\n';
-      }
+    if (blockElements[name] && node.next) {
+      contents.push(filterBr(node, ctx));
     }
   }
-  function filter(text, rules) {
-    rules.forEach(function (rule) {
-      text = text.replace(rule[0], rule[1]);
-    });
-    return text;
-  }
-
-  html = filter(html, [
-    [/<!\[[^\]]+\]>/g, ''],
-  ]);
-
-  walk(domParser.parse(html));
-
-  text = editor.dom.encode(text).replace(/\r\n/g, '\n');
-
-  var startBlock = editor.dom.getParent(editor.selection.getStart(), editor.dom.isBlock);
 
   // Create start block html for example <p attr="value">
-  var forcedRootBlockName = editor.settings.forced_root_block;
-  var forcedRootBlockStartHtml;
-  if (forcedRootBlockName) {
+  const forcedRootBlockName = editor.settings.forced_root_block;
+  let forcedRootBlockStartHtml;
+  if (forcedRootBlockName && !inline) {
     forcedRootBlockStartHtml = editor.dom.createHTML(forcedRootBlockName, editor.settings.forced_root_block_attrs);
     forcedRootBlockStartHtml = forcedRootBlockStartHtml.substr(0, forcedRootBlockStartHtml.length - 3) + '>';
   }
 
-  var images = {};
-  /* eslint-disable no-control-regex */
-  var imgFilter = [/\x02img\x02(.*?)\x02/g, function (_match, url) {
-    images[url] = 1;
-    return editor.dom.createHTML('img', {src: url}) + '\n';
-  }];
-  var tagFilter = [/\x03(\/?\w+)\x03/g, function (_match, tag) {
-    return '<' + tag + '>';
-  }];
+  const filters = inline ? inlineFilters : tagFilters;
+  const ctx = {editor, newLine: forcedRootBlockStartHtml || '<br>'};
 
-  if ((startBlock && /^(PRE|DIV)$/.test(startBlock.nodeName)) || !forcedRootBlockName) {
-    text = filter(text, [
-      imgFilter,
-      tagFilter,
-      [/\n/g, '<br>'],
-    ]);
-  } else {
-    text = filter(text, [
-      imgFilter,
-      tagFilter,
-      [/\n\n/g, '</p>' + forcedRootBlockStartHtml],
-      [/^(.*<\/p>)(<p>)$/, forcedRootBlockStartHtml + '$1'],
-      [/\n/g, '<br />'],
-    ]);
+  const contents = [];
+  walk(root);
 
-    if (text.indexOf('<p>') != -1) {
-      text = forcedRootBlockStartHtml + text;
+  const fragments = [];
+  let block = [];
+  const joinBlock = () => {
+    if (block.length) {
+      fragments.length && fragments.push(ctx.newLine);
+      fragments.push(block.join(''));
+      block = [];
     }
-  }
+  };
+  contents.forEach(item => {
+    if (blockElements[item.name]) joinBlock();
+    if (item.html) {
+      block.push(item.html(item));
+    } else if (item.text) {
+      block.push(item.text);
+    }
+  });
+  block.length && joinBlock();
 
-  return text;
+  const startBlock = editor.dom.getParent(editor.selection.getStart(), editor.dom.isBlock);
+  if ((startBlock && /^(PRE|DIV)$/.test(startBlock.nodeName)) || !forcedRootBlockName) {
+  } else {
+    // if (!fragments[0] || !fragments[0].startsWith(forcedRootBlockStartHtml)) {
+    //   fragments.unshift(forcedRootBlockStartHtml);
+    // }
+  }
+  const html = fragments.join('');
+  console.log('filtered:', html);
+  return html;
+  // return serializer.serialize(root);
+}
+
+function filterNodeInline(editor, node) {
+  return filterNode(editor, node, inlineFilters);
+}
+
+function filterHTML(editor, html) {
+  console.log('filter html:', html);
+  return filterNode(editor, domParser.parse(html));
+}
+
+function filterHTMLInline(editor, html) {
+  console.log('filter inline:', html);
+  return filterNodeInline(editor, domParser.parse(html));
 }
 
 tinymce.PluginManager.add('t_filter', editor => {
   editor.on('BeforePastePreProcess', function (e) {
-    e.content = filterHTML(editor, e.content);
+    console.log('before paste');
+    const rng = editor.selection.getRng();
+    if (editor.dom.getParent(rng.endContainer, 'figcaption')) {
+      e.content = filterHTMLInline(editor, e.content);
+    } else {
+      e.content = filterHTML(editor, e.content);
+    }
   });
 
   editor.on('TFilterHtml', e => {
+    console.log('filter html');
     editor.setContent(filterHTML(editor, e.data));
   });
 });
