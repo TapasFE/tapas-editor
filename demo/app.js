@@ -19,7 +19,7 @@ const config = {
   // paste_as_text: true,
   autoresize_min_height: 500,
   // autofloat_top_offset: 50,
-  image_in_figure: true,
+  image_set_figcaption: true,
   setup,
 };
 
@@ -55,7 +55,7 @@ class App extends React.Component {
     };
     setTimeout(() => {
       this.setState({
-        content: this.content = 'content changed',
+        content: this.content = 'content changed <img src="https://avatars2.githubusercontent.com/u/3139113?v=3&s=460">',
       });
     }, 1000);
   }
