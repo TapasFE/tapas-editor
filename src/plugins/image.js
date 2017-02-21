@@ -1,6 +1,9 @@
 /*
  * @desc Image plugin
  *
+ * When `<img>` of `<figure>` is removed, the whole <figure> will be removed.
+ * This requires `<img>` to be inline instead of block.
+ *
  * Settings:
  * - image_set_figcaption: {Boolean | String}
  *   If truthy, existed images will be transformed and wrapped in `<figures>`s.
