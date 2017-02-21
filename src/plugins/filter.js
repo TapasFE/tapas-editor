@@ -7,18 +7,18 @@ import tinymce from '../tinymce';
 const ignoreElements = tinymce.util.Tools.makeMap('script noscript style textarea video audio iframe object', ' ');
 const schema = new tinymce.html.Schema();
 const domParser = new tinymce.html.DomParser({}, schema);
-const serializer = new tinymce.html.Serializer();
 const shortEndedElements = schema.getShortEndedElements();
 const blockElements = schema.getBlockElements();
 const inlineFilters = {
   strong: filterInline,
   em: filterInline,
 };
-const tagFilters = Object.assign({
+const tagFilters = {
+  ...inlineFilters,
   br: filterBr,
   figure: filterFigure,
   img: filterImg,
-}, inlineFilters);
+};
 
 function buildFigure(item) {
   return `<figure><img src="${item.image || ''}"><figcaption>${item.caption || '<br>'}</figcaption></figure>`;
@@ -132,17 +132,8 @@ function filterNode(editor, root, inline) {
   });
   block.length && joinBlock();
 
-  const startBlock = editor.dom.getParent(editor.selection.getStart(), editor.dom.isBlock);
-  if ((startBlock && /^(PRE|DIV)$/.test(startBlock.nodeName)) || !forcedRootBlockName) {
-  } else {
-    // if (!fragments[0] || !fragments[0].startsWith(forcedRootBlockStartHtml)) {
-    //   fragments.unshift(forcedRootBlockStartHtml);
-    // }
-  }
   const html = fragments.join('');
-  console.log('filtered:', html);
   return html;
-  // return serializer.serialize(root);
 }
 
 function filterNodeInline(editor, node) {
@@ -150,18 +141,15 @@ function filterNodeInline(editor, node) {
 }
 
 function filterHTML(editor, html) {
-  console.log('filter html:', html);
   return filterNode(editor, domParser.parse(html));
 }
 
 function filterHTMLInline(editor, html) {
-  console.log('filter inline:', html);
   return filterNodeInline(editor, domParser.parse(html));
 }
 
 tinymce.PluginManager.add('t_filter', editor => {
   editor.on('BeforePastePreProcess', function (e) {
-    console.log('before paste');
     const rng = editor.selection.getRng();
     if (editor.dom.getParent(rng.endContainer, 'figcaption')) {
       e.content = filterHTMLInline(editor, e.content);
@@ -171,7 +159,6 @@ tinymce.PluginManager.add('t_filter', editor => {
   });
 
   editor.on('TFilterHtml', e => {
-    console.log('filter html');
     editor.setContent(filterHTML(editor, e.data));
   });
 });
