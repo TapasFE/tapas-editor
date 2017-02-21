@@ -37,14 +37,37 @@ tinymce.PluginManager.add('t_image', editor => {
   // If `image_set_figcaption` is true, wrap all `<image>`s within `<figure>`s.
   editor.settings.image_set_figcaption && editor.on('change', e => {
     const {dom} = editor;
-    editor.$('img').each(function (i, img) {
+    editor.$('img').each((i, img) => {
       const block = dom.getParent(img, dom.isBlock);
-      if (block.nodeName.toUpperCase() !== 'FIGURE') {
-        editor.$(img).wrap('<figure>').parent()
+      if (block.nodeName !== 'FIGURE') {
+        const $figure = editor.$(img).wrap('<figure>').parent();
+        $figure
         .append('<figcaption>')
         .find('figcaption').html('<br>');
+        const figure = $figure[0];
+        dom.split(block, figure, figure);
       }
     });
+  });
+
+  // Check `<figure>`s to ensure `<figcaption>` is the last element.
+  // Otherwise, splice the rest of content and wrap them in `<p>`s.
+  editor.on('change', e => {
+    const $els = editor.$('figure>figcaption~*');
+    if (!$els.length) return;
+    const {dom} = editor;
+    // The array should be reversed so that the last element will stay at last.
+    for (let i = $els.length; i--; ) {
+      const el = $els[i];
+      editor.$(el.parentNode).after(el);
+    }
+    dom.replace(dom.create('p'), $els, true);
+    const range = editor.selection.getRng();
+    if (range.collapsed && range.endContainer.nodeName === 'FIGURE') {
+      range.selectNode(range.endContainer.nextSibling);
+      range.collapse();
+      editor.selection.setRng(range);
+    }
   });
 
   function fireUpload(file) {
