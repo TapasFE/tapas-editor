@@ -50,20 +50,44 @@ tinymce.PluginManager.add('t_image', editor => {
     });
   });
 
-  // Check `<figure>`s to ensure `<figcaption>` is the last element.
-  // Otherwise, splice the rest of content and wrap them in `<p>`s.
-  editor.on('change', e => {
-    const $els = editor.$('figure>figcaption~*');
-    if (!$els.length) return;
+  editor.on('NodeChange', e => {
     const {dom} = editor;
-    // The array should be reversed so that the last element will stay at last.
-    for (let i = $els.length; i--; ) {
-      const el = $els[i];
-      editor.$(el.parentNode).after(el);
-    }
-    dom.replace(dom.create('p'), $els, true);
     const range = editor.selection.getRng();
-    if (range.collapsed && range.endContainer.nodeName === 'FIGURE') {
+    editor.$('figure').each((_index, figure) => {
+      const $figure = editor.$(figure);
+
+      // If `<figure>` has no `<img>` in it, just remove it.
+      if (!$figure.children('img').length) {
+        $figure.remove();
+        return;
+      }
+
+      // Ensure `<figcaption>` is the last element.
+      // Otherwise, splice the rest of content and wrap them in `<p>`s.
+      const $els = $figure.find('figcaption~*');
+      // The array should be reversed so that the last element will stay at last.
+      for (let i = $els.length; i--; ) {
+        const el = $els[i];
+        editor.$(el.parentNode).after(el);
+      }
+      dom.replace(dom.create('p'), $els, true);
+
+      // Move text nodes into `<figcaption>`.
+      let $fc = $figure.children('figcaption');
+      if (!$fc.length) {
+        $fc = $figure.append('<figcaption><br></figcaption>').children('figcaption');
+      }
+      $figure.contents().each((i, node) => {
+        if (node.nodeType === 3) {
+          $fc.prepend(node);
+          range.selectNode(node);
+          range.collapse();
+          editor.selection.setRng(range);
+        }
+      });
+    });
+
+    if (range.collapsed && range.endContainer.nodeName === 'FIGURE' && range.endOffset >= range.endContainer.childNodes.length) {
       range.selectNode(range.endContainer.nextSibling);
       range.collapse();
       editor.selection.setRng(range);
