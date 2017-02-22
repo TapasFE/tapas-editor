@@ -21,7 +21,7 @@ const tagFilters = {
 };
 
 function buildFigure(item) {
-  return `<figure><img src="${item.image || ''}"><figcaption>${item.caption || '<br>'}</figcaption></figure>`;
+  return `<figure><img src="${item.image || ''}"><figcaption>${item.caption || ''}</figcaption></figure>`;
 }
 function buildInline(item) {
   const html = `<${item.close ? '/' : ''}${item.name}>`;

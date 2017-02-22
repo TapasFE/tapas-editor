@@ -44,9 +44,7 @@ tinymce.PluginManager.add('t_image', editor => {
       const block = dom.getParent(img, dom.isBlock);
       if (block.nodeName !== 'FIGURE') {
         const $figure = editor.$(img).wrap('<figure>').parent();
-        $figure
-        .append('<figcaption>')
-        .find('figcaption').html('<br>');
+        $figure.append('<figcaption>');
         const figure = $figure[0];
         dom.split(block, figure, figure);
       }
@@ -78,7 +76,7 @@ tinymce.PluginManager.add('t_image', editor => {
       // Move text nodes into `<figcaption>`.
       let $fc = $figure.children('figcaption');
       if (!$fc.length) {
-        $fc = $figure.append('<figcaption><br></figcaption>').children('figcaption');
+        $fc = $figure.append('<figcaption></figcaption>').children('figcaption');
       }
       $figure.contents().each((i, node) => {
         if (node.nodeType === 3) {
@@ -88,6 +86,7 @@ tinymce.PluginManager.add('t_image', editor => {
           editor.selection.setRng(range);
         }
       });
+      if (!$fc.html()) $fc.html('<br>');
     });
 
     if (range.collapsed && range.endContainer.nodeName === 'FIGURE' && range.endOffset >= range.endContainer.childNodes.length) {
@@ -119,17 +118,12 @@ tinymce.PluginManager.add('t_image', editor => {
     if (typeof text !== 'string') text = '';
     const {dom} = editor;
     const id = '__tapas_editor_figure';
-    editor.selection.setContent(dom.createHTML('figure', {
-      id,
-      // contentEditable: false,
-    }));
+    editor.selection.setContent(dom.createHTML('figure', {id}));
     const figure = dom.get(id);
     dom.setAttrib(figure, 'id', null);
     const img = dom.create('img', {src: url});
     figure.appendChild(img);
-    figure.appendChild(dom.create('figcaption', {
-      // contentEditable: true,
-    }, text || '<br>'));
+    figure.appendChild(dom.create('figcaption', {}, text || ''));
     const textBlock = dom.getParent(figure.parentNode, isTextBlock);
     if (textBlock) {
       dom.split(textBlock, figure, figure);
