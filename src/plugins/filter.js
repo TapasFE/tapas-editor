@@ -146,6 +146,7 @@ function getFilters(editor) {
 }
 
 tinymce.PluginManager.add(PLUGIN_NAME, function (editor) {
+  // Attach filters to plugin instance so that they can be modified later.
   this.filters = {
     inline: {
       strong: filterInline,
