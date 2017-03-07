@@ -4,21 +4,12 @@
 
 import tinymce from '../tinymce';
 
+const PLUGIN_NAME = 't_filter';
 const ignoreElements = tinymce.util.Tools.makeMap('script noscript style textarea video audio iframe object', ' ');
 const schema = new tinymce.html.Schema();
 const domParser = new tinymce.html.DomParser({}, schema);
 const shortEndedElements = schema.getShortEndedElements();
 const blockElements = schema.getBlockElements();
-const inlineFilters = {
-  strong: filterInline,
-  em: filterInline,
-};
-const tagFilters = {
-  ...inlineFilters,
-  br: filterBr,
-  figure: filterFigure,
-  img: filterImg,
-};
 
 function buildFigure(item) {
   return `<figure><img src="${item.image || ''}"><figcaption>${item.caption || ''}</figcaption></figure>`;
@@ -70,12 +61,12 @@ function filterInline(node, ctx, close) {
 function filterNode(editor, root, inline) {
   function walk(node) {
     const {name} = node;
-    const filter = filters[name];
+    const filter = localFilters[name];
 
     if (filter) {
       const item = filter(node, ctx);
       contents.push(item);
-      if (item.close) return;
+      if (item && item.close) return;
     }
 
     if (node.type == 3) {
@@ -107,7 +98,8 @@ function filterNode(editor, root, inline) {
     forcedRootBlockStartHtml = forcedRootBlockStartHtml.substr(0, forcedRootBlockStartHtml.length - 3) + '>';
   }
 
-  const filters = inline ? inlineFilters : tagFilters;
+  const filters = getFilters(editor);
+  const localFilters = inline ? filters.inline : filters.tag;
   const ctx = {editor, newLine: forcedRootBlockStartHtml || '<br>'};
 
   const contents = [];
@@ -123,6 +115,7 @@ function filterNode(editor, root, inline) {
     }
   };
   contents.forEach(item => {
+    if (!item) return;
     if (blockElements[item.name]) joinBlock();
     if (item.html) {
       block.push(item.html(item));
@@ -137,7 +130,7 @@ function filterNode(editor, root, inline) {
 }
 
 function filterNodeInline(editor, node) {
-  return filterNode(editor, node, inlineFilters);
+  return filterNode(editor, node, getFilters(editor).inline);
 }
 
 function filterHTML(editor, html) {
@@ -148,7 +141,25 @@ function filterHTMLInline(editor, html) {
   return filterNodeInline(editor, domParser.parse(html));
 }
 
-tinymce.PluginManager.add('t_filter', editor => {
+function getFilters(editor) {
+  return editor.plugins[PLUGIN_NAME].filters;
+}
+
+tinymce.PluginManager.add(PLUGIN_NAME, function (editor) {
+  this.filters = {
+    inline: {
+      strong: filterInline,
+      em: filterInline,
+    },
+    tag: {
+      strong: filterInline,
+      em: filterInline,
+      br: filterBr,
+      figure: filterFigure,
+      img: filterImg,
+    },
+  };
+
   editor.on('BeforePastePreProcess', function (e) {
     const rng = editor.selection.getRng();
     if (editor.dom.getParent(rng.endContainer, 'figcaption')) {
